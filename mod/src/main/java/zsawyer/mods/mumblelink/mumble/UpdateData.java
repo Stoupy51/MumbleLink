@@ -194,7 +194,7 @@ public class UpdateData {
 
     protected String generateContext(Minecraft game, int maxLength) {
         // empty context because the plugin name is already always prepended anyways
-        return "";
+        return "{\"domain\":\"AllTalk\"}";
     }
 
     private Vec3 getTopVec(Minecraft game) {

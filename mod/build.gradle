@@ -19,9 +19,9 @@ apply plugin: 'idea'
 apply plugin: 'maven-publish'
 
 ext.modversion              = "5.3.0"
-ext.mcversion               = "1.19.3"
-ext.forgeversion_dependency = "44"
-ext.forgeversion            = "44.1.0"
+ext.mcversion               = "1.20.4"
+ext.forgeversion_dependency = "49"
+ext.forgeversion            = "49.0.3"
 
 version = mcversion + "-" + modversion
 group = "zsawyer.mods.mumblelink.MumbleLink"
