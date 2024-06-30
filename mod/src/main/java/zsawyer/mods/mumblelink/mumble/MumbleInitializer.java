@@ -68,9 +68,11 @@ public class MumbleInitializer implements Runnable {
 
             synchronized (gameSetter) {
                 try {
-                    System.out.println("getMinecraftInstance...");
+
+                    System.out.println("Minecraft.getInstance()...");
 					Minecraft mc = Minecraft.getInstance();
                     gameSetter.accept(mc);
+
                     gotInstance = true;
                     System.out.println("got it!");
                 } catch (Exception e) {
