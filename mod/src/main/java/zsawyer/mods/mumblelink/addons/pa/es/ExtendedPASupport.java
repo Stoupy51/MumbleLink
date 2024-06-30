@@ -171,6 +171,7 @@ public class ExtendedPASupport implements Activateable, IdentityManipulator {
         // it connects to.
         // TODO: test if we can use game.world.getSeed()
         JSONArray spawnCoordinates = new JSONArray();
+        assert game.level != null;
         spawnCoordinates.put(game.level.getSharedSpawnPos().getX());
         spawnCoordinates.put(game.level.getSharedSpawnPos().getX());
         spawnCoordinates.put(game.level.getSharedSpawnPos().getX());
@@ -178,6 +179,7 @@ public class ExtendedPASupport implements Activateable, IdentityManipulator {
         identity.put(IdentityKey.WORLD_SPAWN, spawnCoordinates);
 
         // append the dimension
+        assert game.player != null;
         identity.put(IdentityKey.DIMENSION, game.player.getCommandSenderWorld().dimension().location().toString());
     }
 

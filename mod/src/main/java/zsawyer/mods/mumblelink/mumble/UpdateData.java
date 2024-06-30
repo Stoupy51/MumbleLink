@@ -32,6 +32,8 @@ import zsawyer.mods.mumblelink.util.json.JSONException;
 import zsawyer.mods.mumblelink.util.json.JSONObject;
 import zsawyer.mumble.jna.LinkAPILibrary;
 
+import java.util.Objects;
+
 /**
  * @author zsawyer
  */
@@ -116,10 +118,14 @@ public class UpdateData {
             float fCameraTopY = 1; // Y points up
             float fCameraTopZ = 1;
 
+            assert game.player != null;
+            System.out.println("getLookAngle");
             Vec3 lookDirection = game.player.getLookAngle();
+            System.out.println("getTopVec");
             Vec3 topDirection = getTopVec(game);
 
             // Position of the avatar
+            System.out.println("getPosition");
             fAvatarPosition = new float[]{
                     (float) game.player.getPosition(1f).x(),
                     (float) game.player.getPosition(1f).z(),
@@ -179,7 +185,8 @@ public class UpdateData {
     }
 
     protected String generateIdentity(Minecraft game, int maxLength) {
-        String displayName = game.player.getDisplayName().getString();
+        assert game.player != null;
+        String displayName = Objects.requireNonNull(game.player.getDisplayName()).getString();
 
         try {
             JSONObject newIdentity = new JSONObject();

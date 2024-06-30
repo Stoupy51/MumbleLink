@@ -48,19 +48,19 @@ public class PackageLibraryLoader implements LibraryLoader {
     protected String libraryName = null;
 
     private static Map<Integer, String> initPlatformFileNameMappings() {
-        final HashMap<Integer, String> mappings = new HashMap<Integer, String>();
-        mappings.put(Platform.LINUX, "lib%1s.so");
-        mappings.put(Platform.WINDOWS, "%1s.dll");
-        mappings.put(Platform.MAC, "lib%1s.dylib");
-        return Collections.unmodifiableMap(mappings);
+        return Map.of(
+                Platform.LINUX, "lib%1s.so",
+                Platform.WINDOWS, "%1s.dll",
+                Platform.MAC, "lib%1s.dylib"
+        );
     }
 
     private static Map<Integer, String> initPlatformNamesMapping() {
-        final HashMap<Integer, String> mappings = new HashMap<Integer, String>();
-        mappings.put(Platform.LINUX, "linux");
-        mappings.put(Platform.WINDOWS, "win32");
-        mappings.put(Platform.MAC, "darwin");
-        return Collections.unmodifiableMap(mappings);
+        return Map.of(
+                Platform.LINUX, "linux",
+                Platform.WINDOWS, "win32",
+                Platform.MAC, "darwin"
+        );
     }
 
     @Override
@@ -70,14 +70,13 @@ public class PackageLibraryLoader implements LibraryLoader {
         File unpackedLibDir = unpackLibrary();
         NativeLibrary loadedLibrary;
         if (unpackedLibDir != null && unpackedLibDir.exists()) {
-            MumbleLinkImpl.LOG.info("Loading library '" + this.libraryName + "' from: " + unpackedLibDir.getAbsolutePath());
+            MumbleLinkImpl.LOG.info("Loading library '{}' from: {}", this.libraryName, unpackedLibDir.getAbsolutePath());
             NativeLibrary.addSearchPath(this.libraryName, unpackedLibDir.getAbsolutePath());
         }
         loadedLibrary = NativeLibrary.getInstance(this.libraryName);
 
         if (loadedLibrary != null) {
-            LinkAPILibrary libraryInstance = (LinkAPILibrary) Native
-                    .loadLibrary(this.libraryName, LinkAPILibrary.class);
+            LinkAPILibrary libraryInstance = (LinkAPILibrary) Native.load(this.libraryName, LinkAPILibrary.class);
             if (libraryInstance != null) {
                 return libraryInstance;
             }
@@ -94,8 +93,7 @@ public class PackageLibraryLoader implements LibraryLoader {
         final String resourcePath = buildResourcePath(folderName, fileName);
 
         try {
-            final File libFile = extractToTmpDir(resourcePath, fileName);
-            return libFile;
+            return extractToTmpDir(resourcePath, fileName);
         } catch (IOException e) {
             MumbleLinkImpl.LOG.warn("Problem extracting resource.", e);
             return null;
@@ -103,12 +101,10 @@ public class PackageLibraryLoader implements LibraryLoader {
     }
 
     private String buildResourcePath(String folderName, String fileName) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(RESOURCE_PATH_SEPERATOR);
-        sb.append(folderName);
-        sb.append(RESOURCE_PATH_SEPERATOR);
-        sb.append(fileName);
-        return sb.toString();
+        return RESOURCE_PATH_SEPERATOR +
+                folderName +
+                RESOURCE_PATH_SEPERATOR +
+                fileName;
     }
 
     private String buildFileName() {

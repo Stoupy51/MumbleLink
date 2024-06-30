@@ -103,7 +103,6 @@ public class MumbleLinkBase implements Consumer<Minecraft> {
      */
     @Override
     public void accept(Minecraft minecraft) {
-        game = minecraft;
-        ErrorHandlerImpl.getInstance().init(game);
+        ErrorHandlerImpl.getInstance().init(minecraft);
     }
 }

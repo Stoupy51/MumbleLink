@@ -27,6 +27,7 @@ import zsawyer.mods.mumblelink.error.NativeInitErrorHandler.NativeInitError;
 import zsawyer.mods.mumblelink.mumble.jna.LinkAPIHelper;
 import zsawyer.mumble.jna.LinkAPILibrary;
 
+import java.lang.reflect.Method;
 import java.util.function.Consumer;
 
 /**
@@ -35,13 +36,14 @@ import java.util.function.Consumer;
 public class MumbleInitializer implements Runnable {
 
     public static final int ONE_SECOND = 1000;
-    private LinkAPIHelper link;
-    private NativeInitErrorHandler errorHandler;
-    private Consumer<Minecraft> gameSetter;
-    private NativeInitError initilizationReturnCode = NativeInitError.NOT_YET_INITIALIZED;
+    private final LinkAPIHelper link;
+    private final NativeInitErrorHandler errorHandler;
+    private final Consumer<Minecraft> gameSetter;
+    private boolean gotInstance = false;
+    private NativeInitError initializationReturnCode = NativeInitError.NOT_YET_INITIALIZED;
 
     public static final String PLUGIN_NAME = "Minecraft";
-    public static final String PLUGIN_DESCRIPTION = "Minecraft (1.16.5)";
+    public static final String PLUGIN_DESCRIPTION = "Minecraft (1.21)";
     public static final int PLUGIN_UI_VERSION = 2;
 
     public MumbleInitializer(LinkAPILibrary link, NativeInitErrorHandler errorHandler, Consumer<Minecraft> gameSetter) {
@@ -49,6 +51,12 @@ public class MumbleInitializer implements Runnable {
         this.link = new LinkAPIHelper(link);
         this.errorHandler = errorHandler;
         this.gameSetter = gameSetter;
+    }
+
+    public Minecraft getMinecraftInstance() throws Exception {
+        // Attempt to use reflection to get the Minecraft instance
+        Method getInstanceMethod = Minecraft.class.getDeclaredMethod("getInstance");
+        return (Minecraft) getInstanceMethod.invoke(null);
     }
 
     @Override
@@ -60,9 +68,14 @@ public class MumbleInitializer implements Runnable {
 
             synchronized (gameSetter) {
                 try {
-                    gameSetter.accept(Minecraft.getInstance());
+                    System.out.println("getMinecraftInstance...");
+					Minecraft mc = Minecraft.getInstance();
+                    gameSetter.accept(mc);
+                    gotInstance = true;
+                    System.out.println("got it!");
                 } catch (Exception e) {
-                    // nothing to do here... we'll just wait a bit and retry when we can  actually get the instance properly
+                    e.printStackTrace();
+                    // nothing to do here... we'll just wait a bit and retry when we can actually get the instance properly
                     try {
                         Thread.sleep(ONE_SECOND);
                         break;
@@ -73,9 +86,9 @@ public class MumbleInitializer implements Runnable {
             }
 
             synchronized (link) {
-                initilizationReturnCode = link.initialize(PLUGIN_NAME, PLUGIN_DESCRIPTION, PLUGIN_UI_VERSION);
+                initializationReturnCode = link.initialize(PLUGIN_NAME, PLUGIN_DESCRIPTION, PLUGIN_UI_VERSION);
 
-                errorHandler.handleError(initilizationReturnCode);
+                errorHandler.handleError(initializationReturnCode);
 
                 try {
                     Thread.sleep(ONE_SECOND);
@@ -87,6 +100,6 @@ public class MumbleInitializer implements Runnable {
     }
 
     public boolean isMumbleInitialized() {
-        return initilizationReturnCode == NativeInitError.NO_ERROR;
+        return initializationReturnCode == NativeInitError.NO_ERROR && gotInstance;
     }
 }
